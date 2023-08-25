@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { Model, Types } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
-import { Model } from 'mongoose';
 import { hashPassword } from '../utils/encrypt';
 @Injectable()
 export class UsersService {
@@ -24,15 +24,28 @@ export class UsersService {
   //   return `This action returns all users`;
   // }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} user`;
-  // }
+  async findOne(id: string) {
+    // TODO: Check mongoose object id
+    if (!Types.ObjectId.isValid(id)) throw new Error('User not found');
+    return await this.userModel.findById(id);
+  }
 
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
+  async update(updateUserDto: UpdateUserDto) {
+    if (!Types.ObjectId.isValid(updateUserDto._id))
+      throw new Error('User not found');
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} user`;
-  // }
+    return await this.userModel.updateOne(
+      {
+        _id: updateUserDto._id,
+      },
+      { ...updateUserDto },
+    );
+  }
+
+  async remove(id: string) {
+    if (!Types.ObjectId.isValid(id)) throw new Error('User not found');
+    return await this.userModel.findByIdAndRemove({
+      _id: id,
+    });
+  }
 }
