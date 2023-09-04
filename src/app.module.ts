@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { softDeletePlugin } from 'soft-delete-plugin-mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -14,6 +15,10 @@ import { AuthModule } from './auth/auth.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>(APP_ENV.DB_CONNECT),
+        connectionFactory: (connection) => {
+          connection.plugin(softDeletePlugin);
+          return connection;
+        },
         // useNewUrlParser: true,
         // useUnifiedTopology: true,
         // useCreateIndex: true,
