@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { hashPassword } from '../utils/encrypt';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { NotFoundError } from 'rxjs';
 @Injectable()
 export class UsersService {
   constructor(
@@ -27,8 +28,14 @@ export class UsersService {
 
   async findOne(id: string) {
     // TODO: Check mongoose object id
-    if (!Types.ObjectId.isValid(id)) throw new Error('User not found');
+    if (!Types.ObjectId.isValid(id))
+      throw new NotFoundException('User not found');
     return await this.userModel.findById(id);
+  }
+
+  async findOneByEmail(email: string) {
+    // TODO: Check mongoose object id
+    return await this.userModel.findOne({ email });
   }
 
   async update(updateUserDto: UpdateUserDto) {

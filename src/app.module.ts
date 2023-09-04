@@ -7,10 +7,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_ENV } from './configs/app.environment';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-
+import { CompaniesModule } from './companies/companies.module';
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: '.development.env',
+      isGlobal: true,
+    }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -27,6 +30,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     UsersModule,
     AuthModule,
+    CompaniesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
