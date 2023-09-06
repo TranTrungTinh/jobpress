@@ -1,6 +1,7 @@
-import mongoose from 'mongoose';
+/* eslint-disable prettier/prettier */
+import { Types } from 'mongoose';
 
 export type TUserSlice = {
-  _id: mongoose.Schema.Types.ObjectId;
+  _id: Types.ObjectId;
   email: string;
 };

@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_ENV } from './configs/app.environment';
 import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './companies/companies.module';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -28,6 +29,7 @@ import { CompaniesModule } from './companies/companies.module';
       inject: [ConfigService],
     }),
     UsersModule,
+    AuthModule,
     CompaniesModule,
   ],
   controllers: [AppController],
