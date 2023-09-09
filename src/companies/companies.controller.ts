@@ -6,11 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { User } from 'src/decorator/global';
+import { ResponseMessage, User } from 'src/decorator/global';
 import { IUser } from 'src/users/schemas/users.interface';
 
 @Controller('companies')
@@ -26,8 +27,17 @@ export class CompaniesController {
   }
 
   @Get()
-  findAll() {
-    return this.companiesService.findAll();
+  @ResponseMessage('Get all companies')
+  async findAll(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('qs') search: string,
+  ) {
+    return await this.companiesService.findAll({
+      page,
+      limit,
+      search,
+    });
   }
 
   @Get(':id')
