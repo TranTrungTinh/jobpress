@@ -8,18 +8,19 @@ import {
   Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { Public } from 'src/decorator/global';
+import { RegisterUserDto } from './dto/create-user.dto';
+import { UpdateRegisterUserDto } from './dto/update-user.dto';
+import { User } from 'src/decorator/global';
+import { IUser } from './schemas/users.interface';
+// import { Public } from 'src/decorator/global';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Public()
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  create(@Body() registerUserDto: RegisterUserDto) {
+    return this.usersService.registerByUser(registerUserDto);
   }
 
   // @Get()
@@ -33,12 +34,15 @@ export class UsersController {
   }
 
   @Patch()
-  update(@Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(updateUserDto);
+  update(@Body() updateUserDto: UpdateRegisterUserDto, @User() user: IUser) {
+    return this.usersService.update({
+      updateUserDto,
+      user,
+    });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  remove(@Param('id') id: string, @User() user: IUser) {
+    return this.usersService.remove({ id, user });
   }
 }
