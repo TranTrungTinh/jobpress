@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { APP_ENV } from './configs/app.environment';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { TransformInterceptor } from './core/transfrom.interceptor';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +20,9 @@ async function bootstrap() {
 
   // TODO: enable global validation pipe
   app.useGlobalPipes(new ValidationPipe());
+
+  // TODO: enable cookie parser
+  app.use(cookieParser());
 
   // TODO: enable cors
   app.enableCors();

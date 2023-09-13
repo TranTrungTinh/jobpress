@@ -15,4 +15,5 @@ export interface IUserTokenPayload extends IUser {
 
 export interface IUserToken extends IUser {
   accessToken: string;
+  user: Partial<IUser>;
 }
