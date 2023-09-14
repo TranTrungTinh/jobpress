@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { comparePassword } from 'src/utils/encrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -46,6 +46,47 @@ export class AuthService {
 
   async register(registerUserDto: RegisterUserDto) {
     return await this.usersService.registerByUser(registerUserDto);
+  }
+
+  async refreshToken(req, res: Response) {
+    // TODO: Get refresh token from cookie
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) throw new BadGatewayException('Invalid refresh token');
+
+    // TODO: Verify refresh token
+    const decoded = this.jwtService.verify(refreshToken, {
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+    });
+
+    if (!decoded) throw new BadGatewayException('Invalid refresh token');
+
+    // TODO: Check refresh token in db
+    const user = await this.usersService.findOneByRefreshToken(refreshToken);
+
+    // TODO: Generate new access token
+    const userPayload = {
+      _id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    };
+
+    // TODO: Sign new refresh and set token to cookie
+    const newRefreshToken = this.generateRefreshToken(userPayload);
+    res.cookie('refreshToken', newRefreshToken);
+
+    // TODO: Update refresh token in db
+    await this.usersService.updateUserRefreshToken(
+      user._id.toString(),
+      refreshToken,
+    );
+
+    // TODO: Return access token
+    return {
+      accessToken: this.jwtService.sign(userPayload),
+      user: userPayload,
+    };
   }
 
   async logout(user: IUser, res: Response) {

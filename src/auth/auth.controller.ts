@@ -46,6 +46,13 @@ export class AuthController {
     return this.authService.register(registerUserDto);
   }
 
+  @Public()
+  @ResponseMessage('Refresh token for user')
+  @Post('refresh-token')
+  refreshToken(@Req() req, @Res({ passthrough: true }) res: Response) {
+    return this.authService.refreshToken(req, res);
+  }
+
   @Get('me')
   getProfile(@User() user: IUser) {
     return this.authService.getMe(user);
