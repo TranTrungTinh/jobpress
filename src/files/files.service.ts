@@ -16,4 +16,8 @@ export class FilesService {
   // remove(id: number) {
   //   return `This action removes a #${id} file`;
   // }
+
+  upload(file: Express.Multer.File) {
+    return 'OK';
+  }
 }

@@ -8,7 +8,7 @@ import path, { join } from 'path';
 @Injectable()
 export class MulterConfigService implements MulterOptionsFactory {
 
-  getRootPath = () => {
+  getRootPath() {
     return process.cwd();
   };
 
