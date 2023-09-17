@@ -85,7 +85,7 @@ export class UsersService {
       })
       .lean();
 
-    if (!userInfo) throw new NotFoundException('User not found');
+    // if (!userInfo) throw new NotFoundException('User not found');
 
     return omit(userInfo, ['__v', 'password', 'deletedAt', 'isDeleted']);
   }
@@ -94,7 +94,7 @@ export class UsersService {
     if (!Types.ObjectId.isValid(args.id))
       throw new BadRequestException('User not found');
 
-    const [_, result] = await Promise.all([
+    const [, result] = await Promise.all([
       this.userModel.updateOne(
         { _id: toObjectId(args.id) },
         {

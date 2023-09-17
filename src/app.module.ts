@@ -8,6 +8,8 @@ import { APP_ENV } from './configs/app.environment';
 import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './companies/companies.module';
 import { AuthModule } from './auth/auth.module';
+import { JobsModule } from './jobs/jobs.module';
+import { FilesModule } from './files/files.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,6 +33,8 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     AuthModule,
     CompaniesModule,
+    JobsModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
