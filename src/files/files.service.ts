@@ -18,6 +18,9 @@ export class FilesService {
   // }
 
   upload(file: Express.Multer.File) {
-    return 'OK';
+    return {
+      key: file.filename,
+      url: file.path,
+    };
   }
 }

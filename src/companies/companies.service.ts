@@ -63,7 +63,7 @@ export class CompaniesService {
   }
 
   async remove(args: { id: string; user: IUser }) {
-    const [_, result] = await Promise.all([
+    const [, result] = await Promise.all([
       this.companyModel.updateOne(
         { _id: toObjectId(args.id) },
         {

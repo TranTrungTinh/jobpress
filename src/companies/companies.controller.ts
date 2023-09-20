@@ -19,6 +19,7 @@ export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 
   @Post()
+  @ResponseMessage('Create company successfully')
   async create(
     @Body() createCompanyDto: CreateCompanyDto,
     @User() user: IUser,
@@ -41,11 +42,13 @@ export class CompaniesController {
   }
 
   @Get(':id')
+  @ResponseMessage('Get company by id')
   async findOne(@Param('id') id: string) {
     return await this.companiesService.findOne(id);
   }
 
   @Patch(':id')
+  @ResponseMessage('Update company successfully')
   async update(
     @Param('id') id: string,
     @Body() updateCompanyDto: UpdateCompanyDto,
@@ -59,6 +62,7 @@ export class CompaniesController {
   }
 
   @Delete(':id')
+  @ResponseMessage('Delete company successfully')
   async remove(@Param('id') id: string, @User() user: IUser) {
     return await this.companiesService.remove({ id, user });
   }
