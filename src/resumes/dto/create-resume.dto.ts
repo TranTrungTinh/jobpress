@@ -2,14 +2,11 @@ import { IsNotEmpty } from 'class-validator';
 
 export class CreateResumeDto {
   @IsNotEmpty()
-  name: string;
+  url: string;
 
   @IsNotEmpty()
-  description: string;
+  companyId: string;
 
   @IsNotEmpty()
-  address: string;
-
-  @IsNotEmpty()
-  logo: string;
+  jobId: string;
 }

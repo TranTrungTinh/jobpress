@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument, mongo } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { TUserSlice } from 'src/enums/schema.enums';
 
 export type ResumeDocument = HydratedDocument<Resume> & Resume;
@@ -8,32 +8,32 @@ export type ResumeDocument = HydratedDocument<Resume> & Resume;
   timestamps: true,
 })
 export class Resume {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
+  url: string;
+
+  @Prop()
   email: string;
 
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
+    type: Types.ObjectId,
     ref: 'User',
     required: true,
   })
-  userId: mongo.ObjectId;
+  userId: Types.ObjectId;
 
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
+    type: Types.ObjectId,
     ref: 'Company',
     required: true,
   })
-  companyId: mongo.ObjectId;
+  companyId: Types.ObjectId;
 
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
+    type: Types.ObjectId,
     ref: 'Job',
     required: true,
   })
-  jobId: mongo.ObjectId;
-
-  @Prop({ required: true })
-  url: string;
+  jobId: Types.ObjectId;
 
   @Prop({
     type: String,
