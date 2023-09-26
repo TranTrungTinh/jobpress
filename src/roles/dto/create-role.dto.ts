@@ -7,7 +7,6 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Types } from 'mongoose';
 
 export class CreateRoleDto {
   @IsString()
@@ -31,5 +30,5 @@ export class CreateRoleDto {
   @IsArray()
   // TODO: each true means that every element in the array must be a string
   @IsMongoId({ each: true })
-  permissions: Array<Types.ObjectId>;
+  permissions: string[];
 }

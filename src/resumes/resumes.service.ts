@@ -8,6 +8,7 @@ import { IUser } from 'src/users/schemas/users.interface';
 import { isValidObjectId, toObjectId, toObjectUser } from 'src/utils/string';
 import { omit } from 'lodash';
 import aps from 'api-query-params';
+import { getSelectFields, getUnSelectFields } from 'src/utils/object';
 
 @Injectable()
 export class ResumesService {
@@ -77,8 +78,7 @@ export class ResumesService {
 
     const resumeDetail = await this.resumeModel
       .findOne({
-        _id: toObjectId(id),
-        isDeleted: false,
+        $and: [{ _id: toObjectId(id) }, { isDeleted: false }],
       })
       .lean();
 
@@ -86,19 +86,24 @@ export class ResumesService {
   }
 
   async getResumeByUser(user: IUser) {
-    const results = await this.resumeModel
+    return await this.resumeModel
       .find({
         userId: toObjectId(user._id),
         isDeleted: false,
       })
-      .select({
-        __v: 0,
-        deletedAt: 0,
-        deletedBy: 0,
-      })
+      .select(getUnSelectFields(['__v', 'deletedAt', 'deletedBy']))
+      .sort('-createdAt')
+      .populate([
+        {
+          path: 'jobId',
+          select: getSelectFields(['name']),
+        },
+        {
+          path: 'companyId',
+          select: getSelectFields(['name']),
+        },
+      ])
       .exec();
-
-    return results;
   }
 
   async update(args: {
