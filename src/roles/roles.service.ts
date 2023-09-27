@@ -8,7 +8,8 @@ import { IUser } from 'src/users/schemas/users.interface';
 import { isValidObjectId, toObjectId, toObjectUser } from 'src/utils/string';
 import { omit } from 'lodash';
 import aps from 'api-query-params';
-import { getUnSelectFields } from 'src/utils/object';
+import { getSelectFields, getUnSelectFields } from 'src/utils/object';
+import { UserRole } from 'src/constants/enums';
 
 @Injectable()
 export class RolesService {
@@ -79,7 +80,10 @@ export class RolesService {
       .findOne({
         $and: [{ _id: toObjectId(id) }, { isDeleted: false }],
       })
-      .populate('permissions')
+      .populate({
+        path: 'permissions',
+        select: getSelectFields(['_id', 'name', 'apiPath', 'method', 'module']),
+      })
       .select(getUnSelectFields(['__v', 'deletedAt', 'deletedBy']))
       .lean();
   }
@@ -127,7 +131,12 @@ export class RolesService {
 
   async remove(args: { id: string; user: IUser }) {
     if (!isValidObjectId(args.id))
-      throw new BadRequestException('resume not found');
+      throw new BadRequestException('Role not found');
+
+    const foundRole = await this.roleModel.findById(args.id).lean();
+    if (foundRole.name === UserRole.admin) {
+      throw new BadRequestException('Can not delete admin role');
+    }
 
     const [, result] = await Promise.all([
       this.roleModel.updateOne(

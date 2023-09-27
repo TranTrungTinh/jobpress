@@ -7,10 +7,12 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { userRoleList } from 'src/constants/enums';
 
 export class CreateRoleDto {
   @IsString()
   @IsNotEmpty()
+  @IsIn(userRoleList)
   name: string;
 
   @IsString()

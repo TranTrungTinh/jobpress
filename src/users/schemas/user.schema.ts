@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { TUserSlice } from 'src/enums/schema.enums';
 
 export type UserDocument = HydratedDocument<User> & User;
@@ -23,8 +23,12 @@ export class User {
   @Prop()
   company: string;
 
-  @Prop()
-  role: string;
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'Role',
+    required: true,
+  })
+  role: Types.ObjectId;
 
   @Prop()
   refreshToken: string;

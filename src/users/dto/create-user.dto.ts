@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsIn,
+  IsMongoId,
   IsNotEmpty,
   IsNotEmptyObject,
   IsObject,
@@ -55,6 +56,7 @@ export class CreateUserDto {
   gender: string;
 
   @IsNotEmpty()
+  @IsMongoId()
   role: string;
 
   @IsNotEmptyObject()
