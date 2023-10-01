@@ -131,7 +131,7 @@ export class UsersService {
 
     // TODO: find user with role is admin
     const foundUser = await this.userModel.findById(args.id).lean();
-    if (foundUser.email === AppConfig.ADMIN_EMAIL) {
+    if (foundUser?.email === AppConfig.ADMIN_EMAIL) {
       throw new BadRequestException('Cannot delete this user');
     }
 

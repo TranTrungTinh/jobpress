@@ -134,7 +134,7 @@ export class RolesService {
       throw new BadRequestException('Role not found');
 
     const foundRole = await this.roleModel.findById(args.id).lean();
-    if (foundRole.name === UserRole.superAdmin) {
+    if (foundRole?.name === UserRole.superAdmin) {
       throw new BadRequestException('Can not delete admin role');
     }
 
