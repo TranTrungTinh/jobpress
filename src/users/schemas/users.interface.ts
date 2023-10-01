@@ -15,6 +15,15 @@ export interface IUser {
   }[]
 }
 
+export interface IUserResponse extends Omit<IUser, 'permissions'> {
+  permissions: {
+    _id: string;
+    name: string;
+    apiPath: string;
+    module: string;
+  }[]
+}
+
 export interface IUserTokenPayload extends IUser {
   sub: string;
   iss: string;

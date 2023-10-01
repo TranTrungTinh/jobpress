@@ -13,14 +13,16 @@ import { hashPassword } from '../utils/encrypt';
 import { pick, omit } from 'lodash';
 import { IUser } from './schemas/users.interface';
 import { toObjectId } from 'src/utils/string';
-import { AppConfig } from 'src/constants/enums';
+import { AppConfig, UserRole } from 'src/constants/enums';
 import aps from 'api-query-params';
 import { getSelectFields, getUnSelectFields } from 'src/utils/object';
+import { Role, RoleDocument } from 'src/roles/schema/role.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>, // private readonly usersService: UsersService,
+    @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
+    @InjectModel(Role.name) private roleModel: SoftDeleteModel<RoleDocument>,
   ) {}
 
   async registerByUser(registerUserDto: RegisterUserDto) {
@@ -30,6 +32,11 @@ export class UsersService {
     const user = await this.userModel.findOne({ email: registerUserDto.email });
     if (user) throw new BadRequestException('Email already exists');
 
+    // TODO: Find role user
+    const roleUser = await this.roleModel
+      .findOne({ name: UserRole.employee })
+      .lean();
+
     const createdUserInfo = await this.userModel.create({
       name: registerUserDto.name,
       email: registerUserDto.email,
@@ -37,6 +44,7 @@ export class UsersService {
       age: registerUserDto.age,
       address: registerUserDto.address,
       gender: registerUserDto.gender,
+      role: roleUser._id,
     });
 
     return pick(createdUserInfo, ['_id', 'name']);
@@ -72,30 +80,6 @@ export class UsersService {
     };
   }
 
-  async findOne(id: string) {
-    // TODO: Check mongoose object id
-    if (!Types.ObjectId.isValid(id))
-      throw new NotFoundException('User not found');
-    return await this.userModel
-      .findOne({ _id: id })
-      .populate({
-        path: 'role',
-        select: getSelectFields(['name', 'permissions']),
-      })
-      .lean();
-  }
-
-  async findOneByEmail(email: string) {
-    // TODO: Check mongoose object id
-    return await this.userModel
-      .findOne({ email })
-      .populate({
-        path: 'role',
-        select: getSelectFields(['name', 'permissions']),
-      })
-      .lean();
-  }
-
   async update(args: { updateUserDto: UpdateRegisterUserDto; user: IUser }) {
     if (!Types.ObjectId.isValid(args.updateUserDto._id))
       throw new BadRequestException('User not found');
@@ -127,13 +111,18 @@ export class UsersService {
       })
       .populate({
         path: 'role',
-        select: getSelectFields(['name', 'permissions']),
+        select: getSelectFields(['name']),
       })
       .lean();
-
     // if (!userInfo) throw new NotFoundException('User not found');
 
-    return omit(userInfo, ['__v', 'password', 'deletedAt', 'isDeleted']);
+    return omit(userInfo, [
+      '__v',
+      'password',
+      'refreshToken',
+      'deletedAt',
+      'isDeleted',
+    ]);
   }
 
   async remove(args: { id: string; user: IUser }) {
@@ -169,12 +158,36 @@ export class UsersService {
     );
   }
 
+  async findOne(id: string) {
+    // TODO: Check mongoose object id
+    if (!Types.ObjectId.isValid(id))
+      throw new NotFoundException('User not found');
+    return await this.userModel
+      .findOne({ _id: id })
+      .populate({
+        path: 'role',
+        select: getSelectFields(['name', 'permissions']),
+      })
+      .lean();
+  }
+
+  async findOneByEmail(email: string) {
+    // TODO: Check mongoose object id
+    return await this.userModel
+      .findOne({ email })
+      .populate({
+        path: 'role',
+        select: getSelectFields(['name']),
+      })
+      .lean();
+  }
+
   async findOneByRefreshToken(refreshToken: string) {
     return await this.userModel
       .findOne({ refreshToken })
       .populate({
         path: 'role',
-        select: getSelectFields(['name', 'permissions']),
+        select: getSelectFields(['name']),
       })
       .lean();
   }

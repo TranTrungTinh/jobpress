@@ -6,21 +6,31 @@ import { IUser } from 'src/users/schemas/users.interface';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
+import { RolesService } from 'src/roles/roles.service';
+
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private readonly rolesService: RolesService,
   ) {}
 
   async validateUser(username: string, password: string) {
     const user = await this.usersService.findOneByEmail(username);
-    if (user) {
-      const isValid = await comparePassword(password, user.password);
-      if (isValid) return user;
-    }
-    return null;
+    if (!user) return null;
+
+    const isValid = await comparePassword(password, user.password);
+    if (!isValid) return null;
+
+    const userRole = user.role as unknown as { _id: string; name: string };
+    const roleInfo = await this.rolesService.findOne(userRole._id);
+
+    return {
+      ...user,
+      permissions: roleInfo.permissions,
+    };
   }
 
   async login(user: IUser, res: Response) {
@@ -40,7 +50,10 @@ export class AuthService {
 
     return {
       accessToken: this.jwtService.sign(userPayload),
-      user: userPayload,
+      user: {
+        ...userPayload,
+        permissions: user.permissions,
+      },
     };
   }
 
@@ -63,12 +76,14 @@ export class AuthService {
 
     // TODO: Check refresh token in db
     const user = await this.usersService.findOneByRefreshToken(refreshToken);
+    const userRole = user.role as unknown as { _id: string; name: string };
+    const roleInfo = await this.rolesService.findOne(userRole._id);
 
     // TODO: Generate new access token
     const userPayload = {
       _id: user._id,
       email: user.email,
-      role: user.role,
+      role: userRole,
       name: user.name,
     };
 
@@ -85,7 +100,10 @@ export class AuthService {
     // TODO: Return access token
     return {
       accessToken: this.jwtService.sign(userPayload),
-      user: userPayload,
+      user: {
+        ...userPayload,
+        permissions: roleInfo.permissions,
+      },
     };
   }
 
@@ -100,10 +118,17 @@ export class AuthService {
   }
 
   async getMe(user: IUser) {
-    return await this.usersService.getProfile(user._id);
+    const userInfo = await this.usersService.getProfile(user._id);
+    const userRole = userInfo.role as unknown as { _id: string; name: string };
+    const roleInfo = await this.rolesService.findOne(userRole._id);
+
+    return {
+      ...userInfo,
+      permissions: roleInfo.permissions,
+    };
   }
 
-  generateRefreshToken(userPayload) {
+  generateRefreshToken(userPayload: Record<string, any>) {
     return this.jwtService.sign(userPayload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
       expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),

@@ -53,7 +53,8 @@ export class AuthController {
     return this.authService.refreshToken(req, res);
   }
 
-  @Get('me')
+  @Get('account')
+  @ResponseMessage('Get profile of user')
   getProfile(@User() user: IUser) {
     return this.authService.getMe(user);
   }

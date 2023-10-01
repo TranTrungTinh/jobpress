@@ -11,7 +11,7 @@ import { Role, RoleDocument } from 'src/roles/schema/role.schema';
 import { UserDocument } from 'src/users/schemas/user.schema';
 import { ADMIN_ROLE, INIT_PERMISSIONS, USER_ROLE } from './db/init';
 import { hashPasswordSync } from 'src/utils/encrypt';
-import { EGender } from 'src/constants/enums';
+import { AppConfig, EGender } from 'src/constants/enums';
 
 @Injectable()
 export class DatabasesService implements OnModuleInit {
@@ -74,7 +74,7 @@ export class DatabasesService implements OnModuleInit {
       await this.userModel.insertMany([
         {
           name: "I'm admin",
-          email: 'tinhadmin@gmail.com',
+          email: AppConfig.ADMIN_EMAIL,
           password: hashPasswordSync(defaultPassword),
           age: 17,
           gender: EGender.male,
@@ -83,7 +83,7 @@ export class DatabasesService implements OnModuleInit {
         },
         {
           name: "I'm Tran Trung Tinh",
-          email: 'tinh2t@gmail.com',
+          email: 'tinhadmin@gmail.com',
           password: hashPasswordSync(defaultPassword),
           age: 26,
           gender: EGender.male,
