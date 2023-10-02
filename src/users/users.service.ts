@@ -12,7 +12,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { hashPassword } from '../utils/encrypt';
 import { pick, omit } from 'lodash';
 import { IUser } from './schemas/users.interface';
-import { toObjectId } from 'src/utils/string';
+import { toObjectId, isValidObjectId, toObjectUser } from 'src/utils/string';
 import { AppConfig, UserRole } from 'src/constants/enums';
 import aps from 'api-query-params';
 import { getSelectFields, getUnSelectFields } from 'src/utils/object';
@@ -65,7 +65,7 @@ export class UsersService {
         .limit(+limit)
         .sort(sort)
         .populate(population)
-        .select(getUnSelectFields(['password']))
+        .select(getUnSelectFields(['password', 'refreshToken', '__v']))
         .exec(),
     ]);
 
@@ -81,7 +81,7 @@ export class UsersService {
   }
 
   async update(args: { updateUserDto: UpdateRegisterUserDto; user: IUser }) {
-    if (!Types.ObjectId.isValid(args.updateUserDto._id))
+    if (!isValidObjectId(args.updateUserDto._id))
       throw new BadRequestException('User not found');
 
     return await this.userModel
@@ -91,10 +91,7 @@ export class UsersService {
         },
         {
           ...args.updateUserDto,
-          updatedBy: {
-            _id: toObjectId(args.user._id),
-            email: args.user.email,
-          },
+          updatedBy: toObjectUser(args.user),
         },
       )
       .lean();
@@ -126,7 +123,7 @@ export class UsersService {
   }
 
   async remove(args: { id: string; user: IUser }) {
-    if (!Types.ObjectId.isValid(args.id))
+    if (!isValidObjectId(args.id))
       throw new BadRequestException('User not found');
 
     // TODO: find user with role is admin
@@ -139,10 +136,7 @@ export class UsersService {
       this.userModel.updateOne(
         { _id: toObjectId(args.id) },
         {
-          deletedBy: {
-            _id: toObjectId(args.user._id),
-            email: args.user.email,
-          },
+          deletedBy: toObjectUser(args.user),
         },
       ),
       this.userModel.softDelete({ _id: toObjectId(args.id) }),
@@ -160,8 +154,7 @@ export class UsersService {
 
   async findOne(id: string) {
     // TODO: Check mongoose object id
-    if (!Types.ObjectId.isValid(id))
-      throw new NotFoundException('User not found');
+    if (!isValidObjectId(id)) throw new NotFoundException('User not found');
     return await this.userModel
       .findOne({ _id: id })
       .populate({

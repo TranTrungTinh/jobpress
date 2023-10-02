@@ -6,11 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { RegisterUserDto } from './dto/create-user.dto';
 import { UpdateRegisterUserDto } from './dto/update-user.dto';
-import { User } from 'src/decorator/global';
+import { ResponseMessage, User } from 'src/decorator/global';
 import { IUser } from './schemas/users.interface';
 // import { Public } from 'src/decorator/global';
 
@@ -19,21 +20,29 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @ResponseMessage('User created successfully')
   create(@Body() registerUserDto: RegisterUserDto) {
     return this.usersService.registerByUser(registerUserDto);
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.usersService.findAll();
-  // }
+  @Get()
+  @ResponseMessage('Fetch users with pagination successfully')
+  findAll(
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string,
+    @Query('qs') qs: string,
+  ) {
+    return this.usersService.findAll({ currentPage, limit, qs });
+  }
 
   @Get(':id')
+  @ResponseMessage('User found successfully')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch()
+  @ResponseMessage('User updated successfully')
   update(@Body() updateUserDto: UpdateRegisterUserDto, @User() user: IUser) {
     return this.usersService.update({
       updateUserDto,
@@ -42,6 +51,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @ResponseMessage('User deleted successfully')
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.usersService.remove({ id, user });
   }
