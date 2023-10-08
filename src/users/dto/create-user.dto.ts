@@ -11,6 +11,7 @@ import {
 import { mongo } from 'mongoose';
 import { Type } from 'class-transformer';
 import { Gender, genderList } from 'src/constants/enums';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterUserDto {
   @IsNotEmpty()
@@ -66,4 +67,16 @@ export class CreateUserDto {
   company: Company;
 
   address: string;
+}
+
+
+export class UserLoginDto {
+  @IsEmail()
+  @IsNotEmpty()
+  @ApiProperty({ example: 'tinh2t', description: 'Email' })
+  readonly username: string;
+
+  @IsNotEmpty()
+  @ApiProperty({ example: '123456', description: 'Password' })
+  password: string;
 }

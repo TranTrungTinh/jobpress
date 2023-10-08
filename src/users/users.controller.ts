@@ -13,8 +13,10 @@ import { RegisterUserDto } from './dto/create-user.dto';
 import { UpdateRegisterUserDto } from './dto/update-user.dto';
 import { ResponseMessage, User } from 'src/decorator/global';
 import { IUser } from './schemas/users.interface';
+import { ApiTags } from '@nestjs/swagger';
 // import { Public } from 'src/decorator/global';
 
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

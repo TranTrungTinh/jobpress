@@ -6,6 +6,8 @@ import { APP_ENV } from './configs/app.environment';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { TransformInterceptor } from './core/transfrom.interceptor';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -27,11 +29,10 @@ async function bootstrap() {
   // TODO: enable cors
   app.enableCors();
 
-  // TODO: enable swagger
-
   // TODO: enable compression
 
   // TODO: enable helmet
+  app.use(helmet());
 
   // TODO: enable rate limit
 
@@ -42,8 +43,29 @@ async function bootstrap() {
 
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: ['1', '2'],
+    defaultVersion: ['1'],
   });
+
+  // TODO: enable swagger
+  const config = new DocumentBuilder()
+    .setTitle('JobPress APIs')
+    .setDescription('The JobPress API description')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'Bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'token'
+    )
+    .addSecurityRequirements('token')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('swagger', app, document, {
+		swaggerOptions: { persistAuthorization: true },
+	});
 
   // ! start app
   await app.listen(configService.get<string>(APP_ENV.APP_PORT));

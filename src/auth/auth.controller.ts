@@ -10,17 +10,25 @@ import {
 import { LocalAuthGuard } from './guards/local-auth.guard.';
 import { AuthService } from './auth.service';
 import { Public, ResponseMessage, User } from 'src/decorator/global';
-import { RegisterUserDto } from 'src/users/dto/create-user.dto';
+import { RegisterUserDto, UserLoginDto } from 'src/users/dto/create-user.dto';
 import { IUser } from 'src/users/schemas/users.interface';
 import { Response } from 'express';
+import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @ApiBody({ type: UserLoginDto })
   @ResponseMessage('User login')
   @UseGuards(LocalAuthGuard)
+
+  // @UseGuards(ThrottlerGuard) // TODO: Enable throttler
+  // @Throttle({ default: { limit: 3, ttl: 60000 } }) // TODO: Enable throttler
+  // @SkipThrottle({ default: false }) // TODO: Rate limiting is applied to this route.
   @Post('login')
   login(
     @Req() req, // mean request.user

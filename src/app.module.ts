@@ -15,12 +15,35 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 import { DatabasesModule } from './databases/databases.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { HealthModule } from './health/health.module';
 @Module({
   imports: [
+    // TODO: Load environment variables
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
     }),
+    // TODO: Enabled throttler
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000,
+        limit: 3,
+      },
+      {
+        name: 'medium',
+        ttl: 10000,
+        limit: 20,
+      },
+      {
+        name: 'long',
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
+
+    // TODO: Connect to database
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -35,6 +58,7 @@ import { SubscribersModule } from './subscribers/subscribers.module';
       }),
       inject: [ConfigService],
     }),
+    // TODO: Inject all modules
     UsersModule,
     AuthModule,
     CompaniesModule,
@@ -45,6 +69,7 @@ import { SubscribersModule } from './subscribers/subscribers.module';
     RolesModule,
     DatabasesModule,
     SubscribersModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
