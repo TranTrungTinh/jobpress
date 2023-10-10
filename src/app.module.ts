@@ -17,6 +17,7 @@ import { DatabasesModule } from './databases/databases.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { HealthModule } from './health/health.module';
+import { MailModule } from './mail/mail.module';
 @Module({
   imports: [
     // TODO: Load environment variables
@@ -70,6 +71,7 @@ import { HealthModule } from './health/health.module';
     DatabasesModule,
     SubscribersModule,
     HealthModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
