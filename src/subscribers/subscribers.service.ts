@@ -72,23 +72,22 @@ export class SubscribersService {
   }
 
   async update(args: {
-    id: string;
     updateSubscriberDto: UpdateSubscriberDto;
     user: IUser;
   }) {
-    if (!isValidObjectId(args.id))
-      throw new BadRequestException('Subscriber not found');
-
     return await this.subscriberModel
       .updateOne(
         {
-          _id: toObjectId(args.id),
+          email: args.user.email,
         },
         {
           $set: {
             ...args.updateSubscriberDto,
             updatedBy: toObjectUser(args.user),
           },
+        },
+        {
+          upsert: true,
         },
       )
       .lean();
@@ -109,5 +108,12 @@ export class SubscribersService {
     ]);
 
     return result;
+  }
+
+  async getSkills(user: IUser) {
+    return await this.subscriberModel
+      .findOne({ email: user.email })
+      .lean()
+      .select(getSelectFields(['skill']));
   }
 }

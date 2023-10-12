@@ -2,7 +2,7 @@
 import { ExecutionContext, Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from 'src/decorator/global';
+import { IS_PUBLIC_KEY, SHOULD_SKIP_PERMISSION } from 'src/decorator/global';
 import { Request } from 'express';
 
 @Injectable()
@@ -23,6 +23,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   handleRequest (err, user, info, context: ExecutionContext) {
     const req: Request = context.switchToHttp().getRequest();
+    const skipPermission = this.reflector.getAllAndOverride<boolean>(SHOULD_SKIP_PERMISSION, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     if (err || !user) {
       throw err || new UnauthorizedException('Invalid token');
@@ -31,7 +35,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     // TODO: Check user permission
     const hasPermission = this.checkPermission(user, req);
 
-    if (!hasPermission) {
+    // TODO: Check if should skip permission
+    if (!skipPermission && !hasPermission) {
       throw new ForbiddenException('You do not have permission to access this resource');
     }
 

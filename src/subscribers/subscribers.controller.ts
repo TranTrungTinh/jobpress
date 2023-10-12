@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Controller,
   Get,
@@ -11,7 +12,11 @@ import {
 import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { UpdateSubscriberDto } from './dto/update-subscriber.dto';
-import { ResponseMessage, User } from 'src/decorator/global';
+import {
+  ResponseMessage,
+  ShouldSkipPermission,
+  User,
+} from 'src/decorator/global';
 import { IUser } from 'src/users/schemas/users.interface';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -24,6 +29,13 @@ export class SubscribersController {
   @ResponseMessage('Subscriber created successfully')
   create(@Body() createSubscriberDto: CreateSubscriberDto) {
     return this.subscribersService.create(createSubscriberDto);
+  }
+
+  @Post('skills')
+  @ShouldSkipPermission()
+  @ResponseMessage('Subscriber get skills successfully')
+  getUserSkills(@User() user: IUser) {
+    return this.subscribersService.getSkills(user);
   }
 
   @Get()
@@ -43,14 +55,13 @@ export class SubscribersController {
   }
 
   @Patch()
+  @ShouldSkipPermission()
   @ResponseMessage('Subscriber updated successfully')
   update(
-    @Param('id') id: string,
     @Body() updateSubscriberDto: UpdateSubscriberDto,
     @User() user: IUser,
   ) {
     return this.subscribersService.update({
-      id,
       updateSubscriberDto,
       user,
     });

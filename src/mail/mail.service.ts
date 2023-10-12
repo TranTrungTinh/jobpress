@@ -8,6 +8,7 @@ import {
   SubscriberDocument,
 } from 'src/subscribers/schema/subscriber.schema';
 import { getSelectFields } from 'src/utils/object';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class MailService {
@@ -35,6 +36,8 @@ export class MailService {
   }
 
   // TODO: Send email to all subscribers matching the job's skill
+  // TODO: Set up cron job to run this function every sunday at 00:00
+  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
   async handleSendEmail() {
     // TODO: Find all subscribers
     const subscribers = await this.subscriberModel
@@ -48,6 +51,10 @@ export class MailService {
           skill: { $in: subscriber.skill },
         })
         .select(getSelectFields(['title', 'description', 'skill', 'salary']))
+        .populate({
+          path: 'company',
+          select: getSelectFields(['name']),
+        })
         .lean();
 
       return this.mailerService.sendMail({
@@ -57,11 +64,23 @@ export class MailService {
         template: 'new-job',
         context: {
           receiver: subscriber.name,
-          jobs: jobsMatchingSkills,
+          jobs: jobsMatchingSkills.map((job) => ({
+            ...job,
+            salary: job.salary.toLocaleString('vi-VN', {
+              style: 'currency',
+              currency: 'VND',
+            }),
+          })),
         },
       });
     });
 
     return await Promise.allSettled(mailerIterators);
+  }
+
+  // TODO: Test cron job
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  async handleTestCronJob() {
+    console.log('Test cron job');
   }
 }

@@ -9,6 +9,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Subscriber } from 'rxjs';
 import { SubscriberSchema } from 'src/subscribers/schema/subscriber.schema';
 import { Job, JobSchema } from 'src/jobs/schema/job.schema';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   controllers: [MailController],
@@ -39,6 +40,7 @@ import { Job, JobSchema } from 'src/jobs/schema/job.schema';
       }),
       inject: [ConfigService],
     }),
+    ScheduleModule.forRoot(),
   ],
 })
 export class MailModule {}
