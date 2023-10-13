@@ -14,8 +14,14 @@ import { mongo } from 'mongoose';
 import { Transform, Type } from 'class-transformer';
 
 class Company {
-  name: string;
+  @IsNotEmpty()
   _id: mongo.ObjectId;
+
+  @IsNotEmpty()
+  name: string;
+
+  @IsNotEmpty()
+  logo: string;
 }
 
 export class CreateJobDto {

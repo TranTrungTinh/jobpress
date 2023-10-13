@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Controller,
   Get,
@@ -11,7 +12,7 @@ import {
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { ResponseMessage, User } from 'src/decorator/global';
+import { Public, ResponseMessage, User } from 'src/decorator/global';
 import { IUser } from 'src/users/schemas/users.interface';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -30,6 +31,7 @@ export class CompaniesController {
   }
 
   @Get()
+  @Public()
   @ResponseMessage('Get all companies')
   async findAll(
     @Query('page') page: number,
@@ -44,6 +46,7 @@ export class CompaniesController {
   }
 
   @Get(':id')
+  @Public()
   @ResponseMessage('Get company by id')
   async findOne(@Param('id') id: string) {
     return await this.companiesService.findOne(id);

@@ -12,7 +12,7 @@ import {
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
-import { ResponseMessage, User } from 'src/decorator/global';
+import { Public, ResponseMessage, User } from 'src/decorator/global';
 import { IUser } from 'src/users/schemas/users.interface';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -28,6 +28,7 @@ export class JobsController {
   }
 
   @Get()
+  @Public()
   @ResponseMessage('Fetch jobs with pagination successfully')
   findAll(
     @Query('current') currentPage: string,
@@ -38,6 +39,7 @@ export class JobsController {
   }
 
   @Get(':id')
+  @Public()
   @ResponseMessage('Job found successfully')
   async findOne(@Param('id') id: string) {
     return await this.jobsService.findOne(id);

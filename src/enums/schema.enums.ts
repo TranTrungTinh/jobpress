@@ -9,4 +9,5 @@ export type TUserSlice = {
 export type TCompanySlice = {
   _id: Types.ObjectId;
   name: string;
+  logo: string;
 };

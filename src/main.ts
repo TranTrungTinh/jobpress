@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { AppModule } from './app.module';
@@ -7,6 +8,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { TransformInterceptor } from './core/transfrom.interceptor';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import * as compression from 'compression';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -27,14 +29,17 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // TODO: enable cors
-  app.enableCors();
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
 
   // TODO: enable compression
+  app.use(compression());
 
   // TODO: enable helmet
   app.use(helmet());
-
-  // TODO: enable rate limit
 
   // TODO: enable logging
 

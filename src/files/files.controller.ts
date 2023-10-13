@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Controller,
   // Get,
@@ -23,7 +24,7 @@ export class FilesController {
 
   @Post('upload')
   @ResponseMessage('Upload file successfully')
-  @UseInterceptors(FileInterceptor('file')) // tên field sử dụng trong form-data
+  @UseInterceptors(FileInterceptor('fileUpload')) // tên field sử dụng trong form-data
   uploadFile(
     @UploadedFile(
       new ParseFilePipeBuilder()
