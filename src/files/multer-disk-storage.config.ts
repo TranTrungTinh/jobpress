@@ -1,9 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { MulterModuleOptions, MulterOptionsFactory } from '@nestjs/platform-express';
 import fs from 'fs';
 import { diskStorage } from 'multer';
 import path, { join } from 'path';
+import { APP_CONFIG } from 'src/configs/app.environment';
 
 @Injectable()
 export class MulterConfigService implements MulterOptionsFactory {
@@ -45,14 +46,24 @@ export class MulterConfigService implements MulterOptionsFactory {
           cb(null, join(this.getRootPath(), `public/images/${folder}`))
         },
         filename: (req, file, cb) => {
-          //get image extension
+          //? get image extension
           const extName = path.extname(file.originalname);
-          //get image's name (without extension)
+          //? get image's name (without extension)
           const baseName = path.basename(file.originalname, extName);
           const finalName = `${baseName}-${Date.now()}${extName}`
           cb(null, finalName)
-        }
-      })
+        },
+      }),
+      fileFilter: (_, file, cb) => {
+        const fileExtension = file.originalname.split('.').pop().toLowerCase();
+        const isValidFileType = APP_CONFIG.FILE_ALLOWS.includes(fileExtension);
+        !isValidFileType ?
+        cb(new HttpException('Invalid file type', HttpStatus.UNPROCESSABLE_ENTITY), null) :
+        cb(null, true);
+      },
+      limits: {
+        fileSize: APP_CONFIG.FILE_MAX_SIZE_UPLOAD
+      }
     };
   }
 }
